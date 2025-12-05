@@ -1,0 +1,134 @@
+<!-- New File uploader Container -->
+<div class="new-file-container">
+    <button style="align-self: end; width: 80px; height: 20px;" onclick="toggleNewFileForm()">Close</button>
+    <h2>Upload New File</h2>
+    <p>Drag and Drop files here or click to upload</p>
+    <div class="file-drop-zone">
+        <p>Drop files here</p>
+    </div>
+    <input type="file" id="fileInput" multiple hidden>
+</div>
+
+
+<script type="module">
+    window.toggleNewFileForm = function() {
+        const formContainer = document.querySelector('.new-file-container');
+        const overlay = document.querySelector('.modal-overlay-for-new-file');
+        const body = document.body;
+
+        const isHidden = formContainer.style.display === 'none' || formContainer.style.display === '';
+
+         if (isHidden) {
+            formContainer.style.display = 'flex';
+            overlay.style.display = 'block';
+            body.style.overflow = 'hidden';
+        } else {
+            formContainer.style.display = 'none';
+            overlay.style.display = 'none';
+            body.style.overflow = 'auto';
+        }
+    }
+
+    const dropZone = document.querySelector('.file-drop-zone');
+    const fileInput = document.getElementById('fileInput');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        uploadFiles(files);
+    });
+
+    fileInput.addEventListener('change', (e) => {
+        const files = e.target.files;
+        uploadFiles(files);
+    });
+
+    async function uploadFiles(files) {
+        if(files.length === 0) return;
+
+        // Validate files
+        const maxSize = 100 * 1024 * 1024; // 100MB per file
+        for (const file of files) {
+            if (file.size > maxSize) {
+                alert(`File "${file.name}" exceeds 100MB limit`);
+                return;
+            }
+        }
+        
+        // Show upload indicator
+        dropZone.innerHTML = '<p>Uploading...</p>';
+        dropZone.style.pointerEvents = 'none';
+        
+        const formData = new FormData();
+        for (const file of files) {
+            formData.append('files', file);
+        }
+
+        // Append current folder ID if needed
+        const currentFolderId = '<%= correctFolderId %>'; // Adjust as necessary
+        formData.append('currentFolderId', currentFolderId);
+
+        try {
+            const response = await fetch('/dashboard/upload-file', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                alert(`${files.length} file(s) uploaded successfully!`);
+                //window.location.reload();
+                addFilesToUI(result.files);
+                toggleNewFileForm();
+            } else {
+                alert(`Upload failed: ${result.message || 'Unknown error'}`);
+            }
+        } catch (error) {
+            console.error('Error uploading files:', error);
+            alert('Network error during file upload.');
+        } finally {
+            // Reset drop zone
+            dropZone.innerHTML = '<p>Drop files here</p>';
+            dropZone.style.pointerEvents = 'auto';
+            fileInput.value = ''; // Clear file input
+        }
+            
+    }
+
+    // Function to add files to the page without reload
+    function addFilesToUI(files) {
+        const fileContainer = document.querySelector('.files-list'); // Your file list container
+        
+        files.forEach(file => {
+            const fileElement = document.createElement('div');
+            fileElement.className = 'file-item';
+            fileElement.innerHTML = `
+                <img src="/icons/file-icon.png" alt="file">
+                <span>${file.name}</span>
+                <span>${formatFileSize(file.size)}</span>
+            `;
+            fileContainer.appendChild(fileElement);
+        });
+    }
+
+    function formatFileSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+</script>
+  

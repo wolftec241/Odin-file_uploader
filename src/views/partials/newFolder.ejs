@@ -1,0 +1,31 @@
+<div class="new-folder-container">
+    <button style="align-self: end; width: 80px; height: 20px;" onclick="toggleNewFolderForm()">Close</button>
+    <h2>Create New Folder</h2>
+    <form action="/dashboard/create-folder" method="POST">
+        <input type="text" name="folderName" placeholder="Folder Name" required />
+        <input type="hidden" name="parentFolderId" value="<%= correctFolderId %>" />
+        <button type="submit">Create Folder</button>
+    </form>
+</div>
+
+
+
+<script type="module">
+    window.toggleNewFolderForm = function() {
+        const formContainer = document.querySelector('.new-folder-container');
+        const overlay = document.querySelector('.modal-overlay-for-new-folder');
+        const body = document.body;
+
+        const isHidden = formContainer.style.display === 'none' || formContainer.style.display === '';
+
+        if (isHidden) {
+            formContainer.style.display = 'flex';
+            overlay.style.display = 'block';
+            body.style.overflow = 'hidden';
+        } else {
+            formContainer.style.display = 'none';
+            overlay.style.display = 'none';
+            body.style.overflow = 'auto';
+        }
+    }
+</script>

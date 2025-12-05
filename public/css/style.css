@@ -1,0 +1,95 @@
+body{
+    margin: 0;
+    font-family: Arial, sans-serif;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: 75px 1fr; 
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+    height: auto;
+    min-height: 100dvh;
+    font-size: 1rem;
+    min-width: 550px;
+}
+
+
+header{
+    grid-area: 1 / 1 / 2 / 6;
+    background-color: beige ;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid black;
+}
+
+.navigation{
+    grid-area: 2 / 1 / 6 / 2;
+    background-color: #f4f4f4;
+    padding: 1rem;
+    border-right: 2px solid black;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.content{
+    grid-area: 2 / 2 / 6 / 6;
+    padding: 1rem;
+}
+
+.folder{
+    text-decoration: none;
+    font-size: 1rem ;
+    color: rgb(0, 0, 112)
+}
+
+.folder:hover{
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.tree-container > ul {
+    list-style-type: none;
+    padding-left: 1rem;
+}
+
+.new-folder-container,
+.new-file-container{
+    position: fixed;
+    display: none;
+    flex-direction: column;
+    align-items: left;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    border: 2px solid black;
+    padding: 1rem;
+    /* removed duplicate z-index and default hidden handled in template */
+    width: 300px;
+    height: auto;
+    backdrop-filter: blur(4px);
+    z-index: 500;
+}
+
+.file-drop-zone {
+    background-color: #e8f4fd;
+    border: 2px dashed #007bff;
+    border-radius: 5px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+/* overlay that darkens and blurs the background behind the modal */
+.modal-overlay-for-new-folder,
+.modal-overlay-for-new-file{
+    position: fixed;
+    inset: 0; /* top:0; right:0; bottom:0; left:0; */
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(3px);
+    z-index: 400;
+    display: none; /* toggled via JS */
+}

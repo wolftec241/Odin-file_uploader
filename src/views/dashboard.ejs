@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>dashboard</title>
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <h1> Welcome to your Dashboard </h1>
+        <a href="/logout">Logout</a>
+    </header>
+
+    <!-- Flash Messages -->
+    <% if (error_msg && error_msg.length > 0) { %>
+        <div class="notification error-notification">
+            <%= error_msg %>
+        </div>
+    <% } %>
+    <% if (success_msg && success_msg.length > 0) { %>
+        <div class="notification success-notification">
+            <%= success_msg %>
+        </div>
+    <% } %>
+    
+    <div class="navigation">
+        <div><button onclick="toggleNewFolderForm()">My Folder</button></div>
+        <div><button onclick="toggleNewFileForm()" >New File</button></div>
+        <%- include('partials/tree', { rootFolder: rootFolder }) %>
+    </div>
+
+    <!-- overlay that darkens & blurs the background -->
+    <div class="modal-overlay-for-new-folder" style="display: none;" onclick="toggleNewFolderForm()"></div>
+    <div class="modal-overlay-for-new-file" style="display: none;" onclick="toggleNewFileForm()"></div>
+
+    <div class="content">
+        <h2> Welcome to your dashboard! </h2>
+        <p> Here you can manage your files and account settings. </p>
+    </div>
+
+    <%- include('partials/newFolder', {correctFolderId: rootFolder.id }) %>
+    <%- include('partials/newFile', {correctFolderId:rootFolder.id}) %>
+</body>
+</html>

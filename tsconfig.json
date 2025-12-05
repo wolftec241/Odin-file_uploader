@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",                // modern JS features
+    "module": "NodeNext",              // ESM support in Node
+    "moduleResolution": "NodeNext",    // resolves .ts/.js correctly
+    "rootDir": "src",                  // source folder
+    "outDir": "dist",                  // compiled output
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"],
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
+  }
+}

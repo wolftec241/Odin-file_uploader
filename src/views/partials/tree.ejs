@@ -1,0 +1,25 @@
+<div class="tree-container">
+    <a href="/dashboard/"> </a>
+    <% function renderTree(folder) { %>
+        <ul class="folders">
+            <li>
+                <a href="/dashboard/<%= folder.parentId %>"> Get Back </a>
+                <p class="folder"><%= folder.name %></p>
+
+                <% if (folder.subfolders && folder.subfolders.length > 0) { %>
+                    <ul >
+                        <% folder.subfolders.forEach(function(subfolder) { %>
+                            <li>
+                                <a href="/dashboard/<%= subfolder.id %>" class="folder"><%= subfolder.name %></a>
+                                <% if (subfolder.subfolders && subfolder.subfolders.length > 0) { %>
+                                    <%= renderTree(subfolder) %>
+                                <% } %>
+                            </li>
+                        <% }); %>
+                    </ul>
+                <% } %>
+            </li>
+        </ul>
+    <% } %>
+    <%= renderTree(rootFolder) %>
+</div>

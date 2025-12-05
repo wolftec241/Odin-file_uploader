@@ -1,0 +1,59 @@
+{
+  "dependencies": {
+    "@prisma/client": "^6.19.0",
+    "@quixo3/prisma-session-store": "^3.1.13",
+    "bcrypt": "^6.0.0",
+    "connect-flash": "^0.1.1",
+    "connect-pg-simple": "^10.0.0",
+    "dotenv": "^17.2.3",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "express-session": "^1.18.2",
+    "multer": "^2.0.2",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0",
+    "pg": "^8.16.3",
+    "prisma": "^6.19.0",
+    "web-push": "^3.6.7"
+  },
+  "name": "odin-file_uploader",
+  "version": "1.0.0",
+  "description": "Personal storage service project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "ts-node src/index.ts",
+    "build": "tsc",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "dev": "tsx watch src/app.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wolftec241/Odin-file_uploader.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/wolftec241/Odin-file_uploader/issues"
+  },
+  "homepage": "https://github.com/wolftec241/Odin-file_uploader#readme",
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/connect-flash": "^0.0.40",
+    "@types/express": "^5.0.5",
+    "@types/express-session": "^1.18.2",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^24.10.1",
+    "@types/passport": "^1.0.17",
+    "@types/passport-local": "^1.0.38",
+    "@types/pg": "^8.15.6",
+    "nodemon": "^3.1.11",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}
