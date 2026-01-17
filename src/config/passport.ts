@@ -1,7 +1,7 @@
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import bcrypt from "bcrypt";
-import controller from "../controllers/controllerdb.js";
+import controller from "../controllers/controllerdb.ts";
 
 const db = await controller();
 

@@ -1,5 +1,7 @@
-import { PrismaClient } from "@prisma/client";
+import prismaPkg from "@prisma/client";
+const { PrismaClient } = prismaPkg;
 import bcrypt from "bcrypt";
+import fs from "fs";    
 
 const prisma = new PrismaClient();
 
@@ -142,6 +144,9 @@ async function queries() {
                 where:{
                     userId: userId,
                     parentId: parentId
+                },
+                orderBy:{
+                    name: 'asc'
                 }
             });
             return subfolders;
@@ -150,6 +155,30 @@ async function queries() {
             throw error;
         }
     }
+
+    const getUserFolderTree = async (userId: string) => { 
+        try {
+            const folders = await prisma.folder.findMany({
+                where: { userId },
+                orderBy: { createdAt: "asc" }
+            });
+
+            const buildTree = (parentId: string | null) : any => {
+                return folders
+                    .filter(f => f.parentId === parentId)
+                    .map(f => ({
+                        ...f,
+                        subfolders: buildTree(f.id)
+                    }));
+            };
+
+            return buildTree(null)[0]; // root folder is the only folder with parentId=null
+        } 
+        catch (error) {
+            console.error("Error building folder tree:", error);
+            throw error;
+        }
+    };
 
     const addFile = async (userId: string, folderId: string, fileName: string, filePath:string, fileSize:number, mimetype:string) =>{
         try{
@@ -232,32 +261,112 @@ async function queries() {
         }
     };
 
-    const deleteEntryUser = async (type: 'file' | 'folder', entryId: string) => {
-        try{
-            const query = {
-                where:{
-                    id: entryId
-                }
-            };
-
-            if(type === 'file'){
-                return await prisma.file.delete(query);
+    const deleteEntryUser = async (type: 'file' | 'folder', entryId: string, userId: string) => {
+    try {
+        if (type === 'file') {
+            // Get file info before deleting
+            const file = await prisma.file.findUnique({
+                where: { id: entryId }
+            });
+            
+            if (!file) {
+                throw new Error("File not found");
             }
-            else if (type === 'folder'){
-                const foleder = await prisma.folder.findUnique({
-                    where:{ id: entryId }
-                });
-                if(foleder?.isRootFolder === true){
-                    console.error("Cannot delete root folder");
-                    throw new Error("Cannot delete root folder");
-                }
-                return await prisma.folder.delete(query);
+            
+            // Verify ownership
+            if (file.userId !== userId) {
+                throw new Error("Unauthorized: You don't own this file");
             }
+            
+            // Delete file from database
+            await prisma.file.delete({
+                where: { id: entryId }
+            });
+            
+            // Delete physical file from filesystem
+            if (fs.existsSync(file.path)) {
+                fs.unlinkSync(file.path);
+                console.log('🗑️  Deleted file from disk:', file.path);
+            }
+            
+            return { success: true, message: 'File deleted successfully' };
+            
+        } else if (type === 'folder') {
+            // Get folder info
+            const folder = await prisma.folder.findUnique({
+                where: { id: entryId },
+                include: {
+                    files: true,
+                    subfolders: true
+                }
+            });
+            
+            if (!folder) {
+                throw new Error("Folder not found");
+            }
+            
+            // Verify ownership
+            if (folder.userId !== userId) {
+                throw new Error("Unauthorized: You don't own this folder");
+            }
+            
+            // Prevent root folder deletion
+            if (folder.isRootFolder === true) {
+                console.error("Cannot delete root folder");
+                throw new Error("Cannot delete root folder");
+            }
+            
+            // Recursively delete all contents
+            await deleteFolderRecursively(entryId, userId);
+            
+            return { success: true, message: 'Folder and all contents deleted successfully' };
         }
-        catch (error) {
+        } catch (error) {
             console.error("Error deleting entry:", error);
             throw error;
         }
+    };
+
+    // Helper function for recursive folder deletion
+    const deleteFolderRecursively = async (folderId: string, userId: string) => {
+        // Get all subfolders
+        const subfolders = await prisma.folder.findMany({
+            where: { parentId: folderId }
+        });
+        
+        // Recursively delete subfolders
+        for (const subfolder of subfolders) {
+            await deleteFolderRecursively(subfolder.id, userId);
+        }
+        
+        // Get all files in this folder
+        const files = await prisma.file.findMany({
+            where: { folderId: folderId }
+        });
+        
+        // Delete physical files from filesystem
+        for (const file of files) {
+            if (fs.existsSync(file.path)) {
+                try {
+                    fs.unlinkSync(file.path);
+                    console.log('🗑️  Deleted file from disk:', file.path);
+                } catch (err) {
+                    console.error('Error deleting physical file:', err);
+                }
+            }
+        }
+        
+        // Delete all files in database (Prisma cascade will handle this, but explicit is better)
+        await prisma.file.deleteMany({
+            where: { folderId: folderId }
+        });
+        
+        // Finally delete the folder itself
+        await prisma.folder.delete({
+            where: { id: folderId }
+        });
+        
+        console.log('🗑️  Deleted folder:', folderId);
     };
 
     const updateFile = async(fileId: string, newPath: string) => {
@@ -276,6 +385,25 @@ async function queries() {
         }
     }
 
+    const getFilesInFolder = async (userId: string, folderId: string) => {
+    try {
+        const files = await prisma.file.findMany({
+            where: {
+                userId: userId,
+                folderId: folderId
+            },
+            orderBy: {
+                name: 'asc'
+            }
+        });
+        return files;
+    } catch (error) {
+        console.error('Error fetching files:', error);
+        return [];
+    }
+    }
+
+
     return{
         findUserById,
         findUserByUsername,
@@ -283,11 +411,14 @@ async function queries() {
         getRootFolderId,
         getFolder,
         addSubfolder,
+        getAllsubfolders,
+        getUserFolderTree,
         addFile,
         getFile,
         renameEntryUser,
         deleteEntryUser,
-        updateFile
+        updateFile,
+        getFilesInFolder
     };
 }
 

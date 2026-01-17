@@ -14,39 +14,36 @@ model User {
   folders  Folder[]
 }
 
-
 model Folder {
-  id         String   @id @default(uuid())
-  name       String
-  userId     String
-  parentId   String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  files      File[]
-  parent     Folder?  @relation("Subfolders", fields: [parentId], references: [id])
-  subfolders Folder[] @relation("Subfolders")
+  id           String   @id @default(uuid())
+  name         String
+  userId       String
+  parentId     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  files        File[]
+  parent       Folder?  @relation("Subfolders", fields: [parentId], references: [id], onDelete: Cascade)
+  subfolders   Folder[] @relation("Subfolders")
   isRootFolder Boolean  @default(false)
-  user       User     @relation(fields: [userId], references: [id])
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
-
 
 model File {
   id        String   @id @default(uuid())
   name      String
   path      String
-  mimeType  String   // e.g. "image/png", "application/pdf"
+  mimeType  String
   userId    String
   size      Int
   folderId  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  folder    Folder?  @relation(fields: [folderId], references: [id])
+  folder    Folder?  @relation(fields: [folderId], references: [id], onDelete: Cascade)
 }
-
 
 model Session {
   id        String   @id
   sid       String   @unique
-  data      String  @db.Text
+  data      String   @db.Text
   expiresAt DateTime
 }

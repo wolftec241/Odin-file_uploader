@@ -15,5 +15,12 @@
         <button type="submit">Login</button>
     </form>
     <p>Don't have an account? <a href="/register">Register here</a></p>
+    <% if (error_msg) { %>
+        <div style="color: red;"><%= error_msg %></div>
+    <% } %>
+    <% if (success_msg) { %>
+        <div style="color: green;"><%= success_msg %></div>
+    <% } %>
+
 </body>
 </html>

@@ -1,15 +1,15 @@
 import 'dotenv/config';
+import express from 'express';
 import expressSession from 'express-session';
 import { PrismaSessionStore } from '@quixo3/prisma-session-store';
 import  { PrismaClient } from '@prisma/client';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import configurePassport from './config/passport.js';
-import express from 'express';
+import configurePassport from './config/passport.ts';
 import passport from 'passport';
 import flash from 'connect-flash';
-import authRoutes from './routers/auth.js';
+import authRoutes from './routers/auth.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -32,7 +32,7 @@ export async function main() {
     expressSession({
         secret: process.env.SESSION_SECRET || 'default_secret',
         resave: true,
-        saveUninitialized: true,
+        saveUninitialized: false,
         cookie: {
             secure: process.env.NODE_ENV === 'production', // Only HTTPS in production
         maxAge: 7 * 24 * 60 * 60 * 1000 // ms

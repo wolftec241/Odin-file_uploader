@@ -1,25 +1,49 @@
 <div class="tree-container">
-    <a href="/dashboard/"> </a>
-    <% function renderTree(folder) { %>
-        <ul class="folders">
+  <ul class="folders">
+    <li>
+      <a href="/dashboard/<%= rootFolder.id %>" 
+         class="<%= rootFolder.id === currentFolderId ? 'active-folder' : '' %>">
+        📁 <%= rootFolder.name %>
+      </a>
+      
+      <% if (rootFolder.subfolders && rootFolder.subfolders.length > 0) { %>
+        <ul>
+          <% rootFolder.subfolders.forEach(function(folder) { %>
+            <% 
+              // Check if this folder is in the current path (with safety check)
+              const isInPath = currentPath && currentPath.some(p => p.id === folder.id);
+              const isActive = folder.id === currentFolderId;
+            %>
             <li>
-                <a href="/dashboard/<%= folder.parentId %>"> Get Back </a>
-                <p class="folder"><%= folder.name %></p>
-
-                <% if (folder.subfolders && folder.subfolders.length > 0) { %>
-                    <ul >
-                        <% folder.subfolders.forEach(function(subfolder) { %>
-                            <li>
-                                <a href="/dashboard/<%= subfolder.id %>" class="folder"><%= subfolder.name %></a>
-                                <% if (subfolder.subfolders && subfolder.subfolders.length > 0) { %>
-                                    <%= renderTree(subfolder) %>
-                                <% } %>
-                            </li>
-                        <% }); %>
-                    </ul>
-                <% } %>
+              <a href="/dashboard/<%= folder.id %>" 
+                 class="<%= isActive ? 'active-folder' : '' %>">
+                📁 <%= folder.name %>
+              </a>
+              
+              <% if (isInPath && folder.subfolders && folder.subfolders.length > 0) { %>
+                <ul>
+                  <% folder.subfolders.forEach(function(subfolder) { %>
+                    <% 
+                      const subIsInPath = currentPath && currentPath.some(p => p.id === subfolder.id);
+                      const subIsActive = subfolder.id === currentFolderId;
+                    %>
+                    <li>
+                      <a href="/dashboard/<%= subfolder.id %>" 
+                         class="<%= subIsActive ? 'active-folder' : '' %>">
+                        📁 <%= subfolder.name %>
+                      </a>
+                      
+                      <% if (subIsInPath && subfolder.subfolders && subfolder.subfolders.length > 0) { %>
+                        <!-- Add more levels here if needed -->
+                      <% } %>
+                    </li>
+                  <% }); %>
+                </ul>
+              <% } %>
             </li>
+          <% }); %>
         </ul>
-    <% } %>
-    <%= renderTree(rootFolder) %>
+      <% } %>
+    </li>
+  </ul>
 </div>

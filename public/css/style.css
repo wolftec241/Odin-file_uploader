@@ -12,7 +12,6 @@ body{
     min-width: 550px;
 }
 
-
 header{
     grid-area: 1 / 1 / 2 / 6;
     background-color: beige ;
@@ -23,6 +22,11 @@ header{
     border-bottom: 2px solid black;
 }
 
+a{
+    text-decoration: none;
+    color: black;
+}
+
 .navigation{
     grid-area: 2 / 1 / 6 / 2;
     background-color: #f4f4f4;
@@ -31,65 +35,305 @@ header{
     display: flex;
     flex-direction: column;
     gap: 0.6rem;
+    overflow-y: auto; /* Add scroll if tree gets long */
+}
+
+/* Navigation buttons styling */
+.navigation > div > button {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+
+.navigation > div > button:hover {
+    background-color: #218838;
 }
 
 .content{
     grid-area: 2 / 2 / 6 / 6;
-    padding: 1rem;
+    padding: 1.5rem;
+    overflow-y: auto; /* Add scroll if content gets long */
 }
 
-.folder{
+/* Folder header */
+.folder-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.folder-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+/* Empty folder state */
+.empty-folder {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: #6c757d;
+    background-color: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    margin-top: 2rem;
+}
+
+.empty-folder p:first-child {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #495057;
+}
+
+.empty-folder p:last-child {
+    margin: 0;
+}
+
+/* Section headers */
+.folders-section,
+.files-section {
+    margin-top: 1.5rem;
+}
+
+.folders-section h3,
+.files-section h3 {
+    margin-bottom: 0.75rem;
+    color: #495057;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.tree-container {
+    padding: 0.5rem 0;
+}
+
+.folders {
+    list-style: none;
+    padding-left: 0;
+}
+
+.folders ul {
+    list-style: none;
+    padding-left: 1.5rem;
+}
+
+.folders li {
+    margin: 0.25rem 0;
+}
+
+.folders a {
     text-decoration: none;
-    font-size: 1rem ;
-    color: rgb(0, 0, 112)
+    color: #333;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    display: inline-block;
+    transition: background-color 0.2s;
 }
 
-.folder:hover{
-    text-decoration: underline;
-    cursor: pointer;
+.folders a:hover {
+    background-color: #e9ecef;
 }
 
-.tree-container > ul {
-    list-style-type: none;
-    padding-left: 1rem;
+.folders a.active-folder {
+    background-color: #007bff;
+    color: white;
+    font-weight: 600;
 }
 
+/* Overlay - must come before modal in CSS */
+.modal-overlay-for-new-folder,
+.modal-overlay-for-new-file{
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3px);
+    z-index: 998;
+    display: none;
+}
+
+/* Modal containers - higher z-index than overlay */
 .new-folder-container,
 .new-file-container{
     position: fixed;
     display: none;
     flex-direction: column;
-    align-items: left;
+    gap: 1rem;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     background-color: white;
     border: 2px solid black;
-    padding: 1rem;
-    /* removed duplicate z-index and default hidden handled in template */
-    width: 300px;
+    border-radius: 8px;
+    padding: 2rem;
+    min-width: 400px;
+    max-width: 600px;
+    width: auto;
     height: auto;
-    backdrop-filter: blur(4px);
-    z-index: 500;
+    z-index: 999; /* Higher than overlay */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.new-file-container h2,
+.new-folder-container h2 {
+    margin-top: 0;
+}
+
+.new-file-container button,
+.new-folder-container button {
+    align-self: flex-end;
+    padding: 0.5rem 1rem;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.new-file-container button:hover,
+.new-folder-container button:hover {
+    background-color: #c82333;
 }
 
 .file-drop-zone {
-    background-color: #e8f4fd;
+    background-color: #f8f9fa;
     border: 2px dashed #007bff;
-    border-radius: 5px;
-    padding: 20px;
+    border-radius: 8px;
+    padding: 3rem 2rem;
     text-align: center;
     cursor: pointer;
-    margin-bottom: 10px;
+    transition: all 0.3s ease;
 }
 
-/* overlay that darkens and blurs the background behind the modal */
-.modal-overlay-for-new-folder,
-.modal-overlay-for-new-file{
-    position: fixed;
-    inset: 0; /* top:0; right:0; bottom:0; left:0; */
-    background: rgba(0,0,0,0.35);
-    backdrop-filter: blur(3px);
-    z-index: 400;
-    display: none; /* toggled via JS */
+.file-drop-zone:hover {
+    background-color: #e3f2fd;
+    border-color: #0056b3;
+}
+
+.file-drop-zone.dragover {
+    background-color: #cfe2ff;
+    border-color: #0056b3;
+    border-style: solid;
+}
+
+.files-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.file-item:hover {
+    background-color: #e9ecef;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* File item link */
+.file-item > a {
+    flex: 1;
+    color: #212529;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.file-item > a:hover {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: #212529;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* File size */
+.file-item > span {
+    font-size: 0.85rem;
+    color: #6c757d;
+    flex: 1;
+    min-width: 0; /* Allow text truncation */
+}
+
+/* Delete button in file item */
+.file-item > button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: background-color 0.2s;
+}
+
+.file-item > button:hover {
+    background-color: #c82333;
+}
+
+.file-info {
+    flex: 1;
+    min-width: 0; /* Allow text truncation */
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.action-buttons button {
+    padding: 0.75rem 1.25rem;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+
+.action-buttons button:hover {
+    background-color: #218838;
+}
+
+/* Notification styles (if you have flash messages) */
+.notification {
+    padding: 1rem;
+    margin: 1rem;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.error-notification {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.success-notification {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
 }

@@ -1,4 +1,4 @@
-import queries from  "../db/queries.js";
+import queries from  "../db/queries.ts";
 import bcrypt from "bcrypt";
 
 const controller = async () => {
@@ -28,6 +28,14 @@ const controller = async () => {
         return await db.addSubfolder(name, userId, parentId);
     }
 
+    const getAllsubfolders = async (userId: string, parentId: string | null) => {
+        return await db.getAllsubfolders(userId, parentId);
+    }
+
+    const getUserFolderTree = async (userId: string) => {
+        return await db.getUserFolderTree(userId);
+    }
+
     const addFile = async (userId: string, folderId: string, fileName: string, filePath: string, fileSize: number, mimeType: string) => {
         return await db.addFile(userId, folderId, fileName, filePath, fileSize, mimeType);
     }
@@ -40,12 +48,16 @@ const controller = async () => {
         return await db.renameEntryUser(entryId, entryType, newName);
     }
 
-    const deleteEntryUser = async (entryType: 'file' | 'folder', entryId: string) => {
-        return await db.deleteEntryUser(entryType, entryId);
+    const deleteEntryUser = async (entryType: 'file' | 'folder', entryId: string, userId: string) => {
+        return await db.deleteEntryUser(entryType, entryId, userId);
     }
 
     const updateFile = async(fileId: string, newPath: string) =>{
         return await db.updateFile(fileId, newPath);
+    }
+
+    const getFilesInFolder = async(userId: string, folderId: string) => {
+        return await db.getFilesInFolder(userId, folderId);
     }
 
     return {
@@ -55,11 +67,14 @@ const controller = async () => {
         getRootFolderId,
         getFolder,
         addSubfolder,
+        getAllsubfolders,
+        getUserFolderTree,
         addFile,
         getFile,
         renameEntryUser,
         deleteEntryUser,
-        updateFile
+        updateFile,
+        getFilesInFolder
     };  
 
 }
